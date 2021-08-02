@@ -1,0 +1,6 @@
+build/contracts/*
+build/tests/*
+node_modules/*
+
+.secret
+.env
