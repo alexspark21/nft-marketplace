@@ -1,4 +1,3 @@
-![Build Status](https://travis-ci.org/0xcert/ethereum-erc721.svg?branch=master)&nbsp;[![NPM Version](https://badge.fury.io/js/@0xcert%2Fethereum-erc721.svg)](https://www.npmjs.com/package/@0xcert/ethereum-erc721)&nbsp;[![Dependencies Status](https://david-dm.org/0xcert/ethereum-erc721.svg)](https://david-dm.org/0xcert/ethereum-erc721)&nbsp;[![Bug Bounty](https://img.shields.io/badge/bounty-open-2930e8.svg)](https://github.com/0xcert/ethereum-erc721/blob/master/BUG_BOUNTY.md)
 
 # ERC-721 Token — Reference Implementation
 
@@ -36,18 +35,18 @@ There are also test mocks that can be seen [here](src/tests/mocks). These are sp
 This project is [released as an npm module](https://www.npmjs.com/package/@0xcert/ethereum-erc721). You must install it using the `npm` command:
 
 ```
-$ npm install @0xcert/ethereum-erc721@2.0.0
+$ npm install @alexspark21/nft-marketplace@2.0.0
 ```
 
 ### Source
 
-*This is the recommended installation method if you want to improve the `0xcert/ethereum-erc721` project.*
+*This is the recommended installation method if you want to improve the `alexspark21/nft-marketplace` project.*
 
 Clone this repository and install the required `npm` dependencies:
 
 ```
-$ git clone git@github.com:0xcert/ethereum-erc721.git
-$ cd ethereum-erc721
+$ git clone git@github.com:alexspark21/nft-marketplace.git
+$ cd nft-marketplace
 $ npm install
 ```
 
