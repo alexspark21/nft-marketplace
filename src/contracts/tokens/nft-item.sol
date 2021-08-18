@@ -2,6 +2,7 @@ pragma solidity 0.8.0;
 
 import "./nf-token-metadata.sol";
 import "../ownership/ownable.sol";
+import "../utils/counter-utils.sol";
 
 /**
  * @dev This is an example contract implementation of NFToken with metadata extension.
@@ -10,32 +11,43 @@ contract NftItem is
 NFTokenMetadata,
 Ownable
 {
+  using CounterUtils for CounterUtils.Counter;
+  CounterUtils.Counter private _tokenIds;
+
+  address marketContractAddress;
 
   /**
    * @dev Contract constructor. Sets metadata extension `name` and `symbol`.
    */
-  constructor (string memory _name, string memory _symbol)
+  constructor (
+    string memory _name,
+    string memory _symbol,
+    address _marketContractAddress
+  )
   {
     nftName = _name;
     nftSymbol = _symbol;
+    marketContractAddress = _marketContractAddress;
   }
 
   /**
    * @dev Mints a new NFT.
-   * @param _to The address that will own the minted NFT.
-   * @param _tokenId of the NFT to be minted by the msg.sender.
-   * @param _uri String representing RFC 3986 URI.
+   * @param tokenURI String representing RFC 3986 URI.
    */
-  function mint(
-    address _to,
-    uint256 _tokenId,
-    string calldata _uri
-  )
-  external
+  function createToken(string memory tokenURI)
+  public
   onlyOwner
+  returns (uint)
   {
-    super._mint(_to, _tokenId);
-    super._setTokenUri(_tokenId, _uri);
+    _tokenIds.increment();
+    uint256 newItemId = _tokenIds.current();
+
+    super._mint(msg.sender, newItemId);
+    super._setTokenUri(newItemId, tokenURI);
+
+    setApprovalForAll(marketContractAddress, true);
+
+    return newItemId;
   }
 
 }

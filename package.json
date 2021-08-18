@@ -61,10 +61,11 @@
     "standard"
   ],
   "devDependencies": {
-    "@specron/cli": "0.17.1",
-    "@specron/flattener": "0.17.1",
-    "@specron/spec": "0.17.1",
-    "@types/node": "14.14.20",
+    "@specron/cli": "^0.17.6",
+    "@specron/flattener": "^0.17.6",
+    "@specron/spec": "^0.17.6",
+    "@types/node": "^14.14.20",
+    "ethers": "^5.4.4",
     "solc": "0.8.0",
     "solhint": "3.3.2",
     "solidity-coverage": "^0.7.16",

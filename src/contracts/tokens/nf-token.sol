@@ -176,7 +176,6 @@ contract NFToken is
   {
     address tokenOwner = idToOwner[_tokenId];
     require(tokenOwner == _from, NOT_OWNER);
-    require(_to != address(0), ZERO_ADDRESS);
 
     _transfer(_to, _tokenId);
   }
@@ -215,7 +214,8 @@ contract NFToken is
     address _operator,
     bool _approved
   )
-    external
+    public
+    virtual
     override
   {
     ownerToOperators[msg.sender][_operator] = _approved;
@@ -306,6 +306,8 @@ contract NFToken is
   )
     internal
   {
+    require(_to != address(0), ZERO_ADDRESS);
+
     address from = idToOwner[_tokenId];
     _clearApproval(_tokenId);
 
