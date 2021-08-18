@@ -17,6 +17,8 @@ contract NftMarket is ReentrancyGuard
   string constant NOT_VALID_BID_PRICE = "004003";
   string constant NOT_VALID_DEADLINE_FOR_SELL = "004004";
   string constant MARKET_ITEM_EXPIRED = "004005";
+  string constant ACCESS_DENIED = "004006";
+  string constant ALREADY_SOLD = "004007";
 
   using CounterUtils for CounterUtils.Counter;
   using TimerUtils for TimerUtils.Timestamp;
@@ -53,6 +55,14 @@ contract NftMarket is ReentrancyGuard
     uint256 price,
     bool sold,
     TimerUtils.Timestamp deadlineForSell
+  );
+
+  event MarketItemDeleted (
+    uint indexed itemId,
+    address indexed nftContract,
+    uint256 indexed tokenId,
+    address seller,
+    uint256 price
   );
 
   /* Returns the listing price of the contract */
@@ -98,6 +108,25 @@ contract NftMarket is ReentrancyGuard
       price,
       false,
       deadline
+    );
+  }
+
+  /* Delete own market item by id */
+  function deleteMarketItem(uint itemId) public payable nonReentrant {
+    MarketItem memory marketItem = idToMarketItem[itemId];
+
+    require(marketItem.seller == msg.sender, ACCESS_DENIED);
+    require(!marketItem.sold, ALREADY_SOLD);
+
+    ERC721(marketItem.nftContract).transferFrom(address(this), msg.sender, marketItem.tokenId);
+    delete idToMarketItem[itemId];
+
+    emit MarketItemDeleted(
+      itemId,
+      marketItem.nftContract,
+      marketItem.tokenId,
+      msg.sender,
+      price
     );
   }
 

@@ -95,6 +95,92 @@ spec.test('correctly create market item', async (ctx) => {
   ctx.is(ownerTokenCount, '0');
 });
 
+spec.test('correctly delete market item', async (ctx) => {
+  const nftContract = ctx.get('nftContract');
+  const nftMarketContract = ctx.get('nftMarketContract');
+
+  const owner = ctx.get('owner');
+
+  const nft1 = ctx.get('nft1');
+
+  const nft1TokenId = nft1.events.Transfer.returnValues._tokenId;
+
+  const listingPrice = await nftMarketContract.instance.methods.getListingPrice().call();
+  const auctionPrice = ethers.utils.parseUnits('1', 'ether');
+
+  const currentTime = await getLastBlockTime(ctx);
+
+  const marketItem1 = await nftMarketContract.instance.methods.createMarketItem(
+    nftContract.receipt.contractAddress,
+    nft1TokenId,
+    auctionPrice.toString(),
+    currentTime + 3600
+  ).send({from: owner, value: listingPrice});
+
+  const nftMarketContractTokenCount = await nftContract.instance.methods.balanceOf(nftMarketContract.receipt.contractAddress).call();
+
+  /** Created market item transfer ntf to contract */
+  ctx.is(nftMarketContractTokenCount, '1');
+
+  const deletedMarketItem = await nftMarketContract.instance.methods.deleteMarketItem(
+    marketItem1.events.MarketItemCreated.returnValues.itemId
+  ).send({from: owner});
+
+  const updatedNftMarketContractTokenCount = await nftContract.instance.methods.balanceOf(nftMarketContract.receipt.contractAddress).call();
+  const updatedOwnerTokenCount = await nftContract.instance.methods.balanceOf(owner).call();
+
+  /** Deleted market item transfer ntf to owner */
+  ctx.is(updatedNftMarketContractTokenCount, '0');
+  ctx.is(updatedOwnerTokenCount, '2');
+});
+
+spec.test('not correctly delete market item', async (ctx) => {
+  const nftContract = ctx.get('nftContract');
+  const nftMarketContract = ctx.get('nftMarketContract');
+
+  const owner = ctx.get('owner');
+  const bob = ctx.get('bob');
+
+  const nft1 = ctx.get('nft1');
+  const nft2 = ctx.get('nft2');
+
+  const nft1TokenId = nft1.events.Transfer.returnValues._tokenId;
+  const nft2TokenId = nft2.events.Transfer.returnValues._tokenId;
+
+  const listingPrice = await nftMarketContract.instance.methods.getListingPrice().call();
+  const auctionPrice = ethers.utils.parseUnits('1', 'ether');
+
+  const currentTime = await getLastBlockTime(ctx);
+
+  const marketItem1 = await nftMarketContract.instance.methods.createMarketItem(
+    nftContract.receipt.contractAddress,
+    nft1TokenId,
+    auctionPrice.toString(),
+    currentTime + 3600
+  ).send({from: owner, value: listingPrice});
+
+  await ctx.reverts(() => nftMarketContract.instance.methods.deleteMarketItem(
+    marketItem1.events.MarketItemCreated.returnValues.itemId
+  ).send({from: bob}), '004006');
+
+  const marketItem2 = await nftMarketContract.instance.methods.createMarketItem(
+    nftContract.receipt.contractAddress,
+    nft2TokenId,
+    auctionPrice.toString(),
+    currentTime + 3600
+  ).send({from: owner, value: listingPrice});
+
+  const marketItemId2 = marketItem2.events.MarketItemCreated.returnValues.itemId;
+
+  const marketItemSale2 = await nftMarketContract.instance.methods.createMarketSale(
+    nftContract.receipt.contractAddress,
+    marketItemId2
+  ).send({from: bob, value: auctionPrice.toString()});
+
+  await ctx.reverts(() => nftMarketContract.instance.methods.deleteMarketItem(
+    marketItemId2
+  ).send({from: owner}), '004007');
+});
 
 spec.test('correctly create market item sell', async (ctx) => {
   const nftContract = ctx.get('nftContract');
@@ -128,7 +214,7 @@ spec.test('correctly create market item sell', async (ctx) => {
 
   const marketItemSale1 = await nftMarketContract.instance.methods.createMarketSale(
     nftContract.receipt.contractAddress,
-    nft1TokenId
+    marketItem1.events.MarketItemCreated.returnValues.itemId
   ).send({from: bob, value: auctionPrice.toString()});
 
   const updatedNftMarketContractTokenCount = await nftContract.instance.methods.balanceOf(nftMarketContract.receipt.contractAddress).call();
