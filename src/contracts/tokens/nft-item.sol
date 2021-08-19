@@ -23,8 +23,7 @@ Ownable
     string memory _name,
     string memory _symbol,
     address _marketContractAddress
-  )
-  {
+  ) {
     nftName = _name;
     nftSymbol = _symbol;
     marketContractAddress = _marketContractAddress;
@@ -37,8 +36,7 @@ Ownable
   function createToken(string memory tokenURI)
   public
   onlyOwner
-  returns (uint)
-  {
+  returns (uint) {
     _tokenIds.increment();
     uint256 newItemId = _tokenIds.current();
 
